@@ -1,14 +1,17 @@
 const db = require("../../data/dbConfig.js");
 
 function getTasks() {
-  return db.select("*").from("tasks");
-}
-
-function getTaskById(id) {
   return db
-    .select("*")
+    .select(
+      "tasks.id",
+      "tasks.description",
+      "tasks.notes",
+      "tasks.completed",
+      "projects.name",
+      "projects.description"
+    )
     .from("tasks")
-    .where({ id });
+    .join("projects", "tasks.project_id", "projects.id");
 }
 
 function addTask(task) {
@@ -25,7 +28,6 @@ function addTask(task) {
 }
 
 module.exports = {
-  getTaskById,
   getTasks,
   addTask
 };
