@@ -7,7 +7,11 @@ const router = express.Router();
 router.get("/", (req, res) => {
   Proj.getProjects()
     .then(projects => {
-      res.status(200).json(projects);
+      res.status(200).json(
+        projects.map(cv => {
+          return { ...cv, completed: cv.completed ? "true" : "false" };
+        })
+      );
     })
     .catch(err => {
       res.status(500).json({ message: "Error retrieving all projects", err });
@@ -19,7 +23,10 @@ router.get("/:id", validateId, (req, res) => {
 
   Proj.getProjectById(id)
     .then(project => {
-      res.status(200).json(project);
+        newProj = {...project[0], completed: project.completed ? "true" : "false"}
+      res
+        .status(200)
+        .json(newProj);
     })
     .catch(err => {
       res.status(500).json({ message: "Error retrieving project", err });
@@ -27,7 +34,7 @@ router.get("/:id", validateId, (req, res) => {
 });
 
 router.post("/", validateBody, validateProjectKeys, (req, res) => {
-  const body = req.params.body;
+  const body = req.body;
 
   Proj.addProject(body)
     .then(project => {
@@ -59,19 +66,19 @@ function validateId(req, res, next) {
 }
 
 function validateBody(req, res, next) {
-  const body = req.params.body;
+  const body = req.body;
 
   Object.keys(body).length > 0
     ? next()
-    : res.status(400).json({message: "Request missing body"});
+    : res.status(400).json({ message: "Request missing body" });
 }
 
 function validateProjectKeys(req, res, next) {
-  const body = req.params.body;
+  const body = req.body;
 
   body.name
     ? next()
     : res.status(400).json({ message: "Request body missing 'name' key" });
 }
 
-module.exports = router
+module.exports = router;
